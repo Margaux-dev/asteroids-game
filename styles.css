@@ -1,0 +1,21 @@
+*{
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body{
+	height: 100vh;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: rgba(17,17,17,1.00);
+}
+
+canvas{
+	width: 70vw;
+	height: 70vh;
+	border: 1.5px solid rgba(110,110,110,1.00);
+	border-radius: 20px;
+	box-shadow: 0 0 10px 10px rgba(37,37,37,1.00);;
+}
