@@ -15,8 +15,6 @@ const roidsNum = 1; // starting nb of asteroids
 const roidsSize = 100; // starting size of asteroids in px
 const roidsSpeed = 50; // max px per second
 const roidsVert = 10; // average nb of vertices on each asteroid
-const showBounding = false; // show or hide collision bounding
-const showCenterDot = false;
 const gameLives = 3; //starting num of lives
 const textFadeTime = 2.5; // in seconds
 const textSize = 40; // in px
@@ -231,14 +229,6 @@ function update () {
 		}
 		context.closePath();
 		context.stroke();
-		
-		// show asteroid's collision circle
-		if (showBounding) {
-		context.strokeStyle = "lime";
-		context.beginPath();
-		context.arc(x, y, r, 0, Math.PI * 2, false);
-		context.stroke();
-		}	
 	}
 	
 	
@@ -320,45 +310,31 @@ function update () {
 		context.fill();
 	}
 	
-	if (showBounding) {
-		context.strokeStyle = "lime";
-		context.beginPath();
-		context.arc(ship.x, ship.y, ship.r, 0, Math.PI * 2, false);
-		context.stroke();
-	}
-	
-	
-	
-	// CENTER DOT
-	if(showCenterDot) {
-		context.fillStyle = "red";
-		context.fillRect(ship.x - 1, ship.y - 1, 2, 2);
-	}
 	
 	// DRAW THE LASERS
 	for (let i = 0; i < ship.lasers.length; i++) {
 		if (ship.lasers[i].explodeTime == 0) {
-			context.fillStyle = "salmon";
+			context.fillStyle = "rgba(251,143,129,1.00)";
 			context.beginPath();
 			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize / 15, 0, Math.PI * 2, false);
 			context.fill();
 		} else {
 			// draw the explosion
-			context.fillStyle = "salmon";
+			context.fillStyle = "rgba(234,63,0,1.00)";
 			context.beginPath();
 			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.75, 0, Math.PI * 2, false);
 			context.fill();
-			context.fillStyle = "orangered";
+			context.fillStyle = "rgba(247,119,70,1.00)";
 			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.75, 0, Math.PI * 2, false);
+			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.5, 0, Math.PI * 2, false);
 			context.fill();
-			context.fillStyle = "salmon";
+			context.fillStyle = "rgba(249,145,105,1.00)";
 			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.75, 0, Math.PI * 2, false);
+			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.25, 0, Math.PI * 2, false);
 			context.fill();
-			context.fillStyle = "pink";
+			context.fillStyle = "rgba(250,173,143,1.00)";
 			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.75, 0, Math.PI * 2, false);
+			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.15, 0, Math.PI * 2, false);
 			context.fill();
 		}
 	}
