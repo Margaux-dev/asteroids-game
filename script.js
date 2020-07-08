@@ -1,5 +1,5 @@
 const FPS = 30; // frames per second
-const friction = 0.7; // friction coefficient of space
+const friction = 0.5; // friction coefficient of space
 const shipBlinkDuration = 0.1; // in seconds
 const shipExplodeDuration = 0.3;
 const shipInvisibilityDuration = 3; // in seconds
@@ -147,8 +147,8 @@ function drawShip(x, y, a, color = "#fff") {
 	context.lineWidth = shipSize / 20;
 	context.beginPath();
 	context.moveTo(
-		x + 4 / 3 * ship.r * Math.cos(a),
-		y - 4 / 3 * ship.r * Math.sin(a)
+		x + 5 / 3 * ship.r * Math.cos(a),
+		y - 5 / 3 * ship.r * Math.sin(a)
 	);
 	context.lineTo(
 		x - ship.r * (2 / 3 * Math.cos(a) + Math.sin(a)),
@@ -190,6 +190,62 @@ function explodeShip () {
 
 
 
+// DRAW THE EXPLOSITION
+function drawExplosion (ex, ey, spikes, r) {
+	let rot = Math.PI / 2 * 3;
+	let x = ex;
+	let y = ey;
+	let step = Math.PI / spikes;
+	context.beginPath();
+	context.moveTo(
+		ex, ey - r
+	);
+	for (let i = 0; i < spikes; i++) {
+		x = ex + Math.cos(rot) * r;
+		y = ey + Math.sin(rot) * r;
+		context.lineTo(x, y);
+		rot += step;
+		x = ex + Math.cos(rot);
+		y = ey + Math.sin(rot);
+		context.lineTo(x, y);
+		rot += step
+	}
+	context.lineTo(ex, ey - r);
+	context.closePath();
+	context.lineWidth = 3.5;
+	context.strokeStyle = "rgba(179,62,0,1.00)";
+	context.stroke();
+	context.fillStyle = "rgba(255,235,0,1.00)";
+	context.fill();
+	
+	context.fillStyle = "rgba(198,77,0,1.00)";
+	context.beginPath();
+	context.arc(ex, ey, r * 0.7, Math.PI * 2, false);
+	context.fill();
+	context.fillStyle =  "rgba(252,99,0,1.00)";
+	context.beginPath();
+	context.arc(ex, ey, r * 0.6, Math.PI * 2, false);
+	context.fill();
+	context.fillStyle =  "rgba(255,140,65,1.00)";
+	context.beginPath();
+	context.arc(ex, ey, r * 0.5, Math.PI * 2, false);
+	context.fill();
+	context.fillStyle = "rgba(255,169,65,1.00)";
+	context.beginPath();
+	context.arc(ex, ey, r * 0.4, Math.PI * 2, false);
+	context.fill();
+	context.fillStyle = "rgba(255,206,65,1.00)";
+	context.beginPath();
+	context.arc(ex, ey, r * 0.3, Math.PI * 2, false);
+	context.fill();
+	context.fillStyle = "rgba(255,233,66,1.00)";
+	context.beginPath();
+	context.arc(ex, ey, r * 0.2, 0, Math.PI * 2, false);
+	context.fill();
+}
+
+
+
 // MAKE THE GAME WORKS
 function update () {
 	let blinkOn = ship.blinkNumber % 2 === 0;
@@ -202,7 +258,7 @@ function update () {
 	// DRAW THE ASTEROIDS
 	let x, y, r, a, vert, offs;
 	for (let i = 0; i < roids.length; i++) {
-		context.strokeStyle = "slategray";
+		context.strokeStyle = "rgba(217,241,189,1.00)";
 		context.lineWidth = shipSize / 20;
 		
 		// Get the asteroid props
@@ -237,10 +293,10 @@ function update () {
 		ship.thrust.x += shipThrust * Math.cos(ship.a) / FPS;
 		ship.thrust.y -= shipThrust * Math.sin(ship.a) / FPS;
 		
-		//draw the thruster
+		// Draw the thruster
 		if (!exploding && blinkOn) {
-			context.fillStyle= "red";
-			context.strokeStyle = "yellow";
+			context.fillStyle= "rgba(255,86,0,1.00)";
+			context.strokeStyle = "rgba(255,169,78,1.00)"; 
 			context.lineWidth = shipSize / 10;
 			context.beginPath();
 			context.moveTo(
@@ -263,7 +319,7 @@ function update () {
 			context.stroke();
 		}
 	} else {
-		// apply space friction when no thrusting
+		// Apply space friction when no thrusting
 		ship.thrust.x -= friction * ship.thrust.x / FPS;
 		ship.thrust.y -= friction * ship.thrust.y / FPS;
 	}
@@ -273,41 +329,19 @@ function update () {
 		if (blinkOn && !ship.dead) {
 			drawShip(ship.x, ship.y, ship.a);
 		}
-		
-		//handle blinking
+		// Handle blinking
 		if (ship.blinkNumber > 0) {
-			//reduce blink time
+			// Reduce blink time
 			ship.blinkTime--;
-			
-			//reduc blink number
+			// Reduce blink number
 			if (ship.blinkTime === 0) {
 				ship.blinkTime = Math.ceil(shipBlinkDuration * FPS);
 				ship.blinkNumber--;
 			}
 		}
-		
 	} else {
-		// draw the explosion
-		context.fillStyle = "darkred";
-		context.beginPath();
-		context.arc(ship.x, ship.y, ship.r * 1.7, 0, Math.PI * 2, false);
-		context.fill();
-		context.fillStyle = "red";
-		context.beginPath();
-		context.arc(ship.x, ship.y, ship.r * 1.4, 0, Math.PI * 2, false);
-		context.fill();
-		context.fillStyle = "orange";
-		context.beginPath();
-		context.arc(ship.x, ship.y, ship.r * 1.1, 0, Math.PI * 2, false);
-		context.fill();
-		context.fillStyle = "yellow";
-		context.beginPath();
-		context.arc(ship.x, ship.y, ship.r * 0.8, 0, Math.PI * 2, false);
-		context.fill();
-		context.fillStyle = "#fff";
-		context.beginPath();
-		context.arc(ship.x, ship.y, ship.r * 0.5, 0, Math.PI * 2, false);
-		context.fill();
+		// Draw the explosion
+		drawExplosion(ship.x, ship.y, 20, ship.r);
 	}
 	
 	
@@ -319,23 +353,8 @@ function update () {
 			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize / 15, 0, Math.PI * 2, false);
 			context.fill();
 		} else {
-			// draw the explosion
-			context.fillStyle = "rgba(234,63,0,1.00)";
-			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.75, 0, Math.PI * 2, false);
-			context.fill();
-			context.fillStyle = "rgba(247,119,70,1.00)";
-			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.5, 0, Math.PI * 2, false);
-			context.fill();
-			context.fillStyle = "rgba(249,145,105,1.00)";
-			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.25, 0, Math.PI * 2, false);
-			context.fill();
-			context.fillStyle = "rgba(250,173,143,1.00)";
-			context.beginPath();
-			context.arc(ship.lasers[i].x, ship.lasers[i].y, shipSize * 0.15, 0, Math.PI * 2, false);
-			context.fill();
+			// Draw the explosion
+			drawExplosion(ship.lasers[i].x, ship.lasers[i].y, 20, shipSize * 0.75);
 		}
 	}
 	
@@ -362,7 +381,7 @@ function update () {
 	
 	
 	// DRAW THE SCORE
-	context.fillStyle = "#fff";
+	context.fillStyle = "#C9C9C9";
 	context.font = textSize + "px helvetica";
 	context.textAlign = "right";
 	context.textBaseline = "middle";
@@ -370,7 +389,7 @@ function update () {
 	
 	
 	// DRAW THE HIGH SCORE
-	context.fillStyle = "#fff";
+	context.fillStyle = "#C9C9C9";
 	context.font = (textSize * 0.65) + "px helvetica";
 	context.textAlign = "center";
 	context.textBaseline = "middle";
