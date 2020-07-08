@@ -12,6 +12,14 @@ body{
 	background-color: rgba(17,17,17,1.00);
 }
 
+p{
+	margin-top: 50px;
+	margin-bottom: -70px;
+	color: #C6C6C6;
+	font-family: Helvetica, sans-serif;
+	text-align: center;
+}
+
 canvas{
 	width: 70vw;
 	height: 70vh;
