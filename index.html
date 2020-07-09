@@ -1,15 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>JS Asteroids Game</title>
 		<link rel="stylesheet" href="styles.css">
+		<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.13.1/css/all.css" integrity="sha384-xxzQGERXS00kBmZW/6qxqJPyxW3UR0BPsL4c8ILaIWXva5kFi7TxkIIaMiKtqV1Q" crossorigin="anonymous">
 	</head>
 
 	<body>
-		<canvas id="gameCanvas" width="700" height="500"></canvas>
-		<p>Use ↑ to propel the ship, ← and → to move the ship and the space bar to shoot lasers</p>
-		<script src="script.js"></script>
+		<main tabindex="0">
+			<canvas id="gameCanvas" width="700" height="500"></canvas>
+		</main>
+			<div id="instructions">
+				<div class="commands"><kbd><i class="fas fa-arrow-up" aria-hidden="true" aria-label="up arrow key"></i></kbd>propel the ship</div>
+				<div class="commands"><kbd><i class="fas fa-arrow-left" aria-hidden="true" aria-label="left arrow key"></i></kbd><kbd><i class="fas fa-arrow-right" aria-hidden="true" aria-label="right arrow key"></i></kbd>move the ship</div>
+				<div class="commands"><kbd>Space</kbd>shoot lasers</div>
+			</div>
+			<div class="volume">
+				<i id="music" class="fas fa-music mute" aria-hidden="true" aria-label="sound off"></i>
+				<div id="sound"><i class="fas fa-volume-mute" aria-hidden="true" aria-label="sound off"></i></div>
+			</div>
+			<p id="alert">Sorry, you can't play from a mobile or a tablet...</p>
+			<script src="script.js"></script>
 	</body>
 </html>
