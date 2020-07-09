@@ -16,23 +16,101 @@ const roidsSize = 100; // starting size of asteroids in px
 const roidsSpeed = 50; // max px per second
 const roidsVert = 10; // average nb of vertices on each asteroid
 const gameLives = 3; //starting num of lives
-const textFadeTime = 2.5; // in seconds
+const textFadeTime = 3; // in seconds
 const textSize = 40; // in px
 const roidsLargePts = 20; // points scored for large asteroid
 const roidsMediumPts = 50; // points scored for medium asteroid
 const roidsSmallPts = 100; // points scored for small asteroid
 const saveScore = "highScore"; // save key for local storage
+let soundOn = false;
+let musicOn = false;
 
 let canvas = document.getElementById("gameCanvas");
 let context = canvas.getContext("2d");
+document.querySelector("main").focus();
+
+
+// SOUND EFFECTS
+function Sound(src, maxStreams = 1, vol = 1.0) {
+	this.streamNum = 0;
+	this.streams = [];
+	for (let i = 0; i < maxStreams; i++) {
+		this.streams.push(new Audio(src));
+		this.streams[i].volume = vol;
+	}
+	this.play = function () {
+		if (soundOn) {
+		this.streamNum = (this.streamNum + 1) % maxStreams;
+		this.streams[this.streamNum].play();
+		}
+	}
+	this.stop = function () {
+		this.streams[this.streamNum].pause();
+		this.streams[this.streamNum].currentTime = 0;
+	}
+}
+let laserSound = new Sound("https://margaux-dev.github.io/asteroids-game/asteroids-game-sounds/pew.m4a", 5, 0.4);
+let thrustSound = new Sound("https://margaux-dev.github.io/asteroids-game/asteroids-game-sounds/thrust.m4a");
+let hitSound = new Sound("https://margaux-dev.github.io/asteroids-game/asteroids-game-sounds/hit.m4a", 5, 0.8);
+let explosionSound = new Sound("https://margaux-dev.github.io/asteroids-game/asteroids-game-sounds/explosion.m4a", 1, 0.7);
+
+
+//MUSIC
+let music = new Music("https://margaux-dev.github.io/asteroids-game/asteroids-game-sounds/music-high.m4a","https://margaux-dev.github.io/asteroids-game/asteroids-game-sounds/music-low.m4a");
+let roidsLeft, roidsTotal;
+function Music (srcA, srcB) {
+	this.soundA = new Audio(srcA);
+	this.soundB = new Audio(srcB);
+	this.a = true;
+	this.tempo = 1.0;
+	this.beatTime = 0;
+	this.play = function () {
+		if (musicOn) {
+			if (this.a) {
+				this.soundA.play();
+			} else {
+				this.soundB.play();
+			}
+			this.a = !this.a;
+		}
+	}
+	this.setAsteroidRatio = function (ratio) {
+		this.tempo = 1 - 0.75 * (1 - ratio);
+	}
+	this.tick = function () {
+		if (this.beatTime === 0) {
+			this.play();
+			this.beatTime = Math.ceil(this.tempo * FPS);
+		} else {
+			this.beatTime--;
+		}
+	}
+}
 
 
 // SET UP THE GAME LOOP
 setInterval(update, 1000 / FPS);
 
+
 // SET UP GAME PARAMETERS
 let level, roids, ship, lives, score, highScore, text, textAlpha;
-newGame();
+
+
+// START THE GAME
+	// Background
+context.fillStyle = "rgba(44,44,44,1.00)";
+context.fillRect(0, 0, canvas.width, canvas.height);
+	// Title
+context.fillStyle = "rgba(193,193,193,1.00)";
+context.font = "normal small-caps 100 " + (textSize + 30) + "px VT323";
+context.textAlign   = "center";
+context.textBaseline = "middle";
+context.fillText("ASTEROIDS", canvas.width / 2, canvas.height * 0.48);
+	// subtitke
+context.font = "small-caps " + (textSize - 15) + "px VT323";
+context.fillText("PRESS ANY KEY TO START", canvas.width / 2, canvas.height * 0.58);
+document.addEventListener("keydown", newGame);
+
 
 
 // BUILD AN ASTEROID
@@ -57,11 +135,11 @@ function newAsteroid (x, y, r) {
 	return roid;
 }
 
-
-
 // CREATE THE ASTEROID BELT
 function createAsteroidBelt () {
 	roids = [];
+	roidsTotal = (roidsNum + level) * 7;
+	roidsLeft = roidsTotal;
 	let x, y;
 	for (let i = 0; i < roidsNum + level; i++) {
 		do { 
@@ -71,7 +149,6 @@ function createAsteroidBelt () {
 		roids.push(newAsteroid(x, y, Math.ceil(roidsSize / 2)));
 	}
 }
-
 
 
 // DESTROY AN ASTEROID
@@ -101,6 +178,11 @@ function destroyAsteroid (index) {
 	
 	// Destroy the last fragment of asteroid
 	roids.splice(index, 1);
+	hitSound.play();
+	
+	// Ratio of remaining asteroids for music tempo
+	roidsLeft--;
+	music.setAsteroidRatio(roidsLeft === 0 ? 1 : roidsLeft / roidsTotal);
 	
 	// Then new level starts
 	if (roids.length === 0){
@@ -110,12 +192,10 @@ function destroyAsteroid (index) {
 }
 
 
-
 // GET THE DISTANCE BETWEEN TWO POINTS
 function distBetweenPoints(x1, y1, x2, y2) {
 	return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
-
 
 
 // BUILD A NEW SHIP
@@ -163,7 +243,6 @@ function drawShip(x, y, a, color = "#fff") {
 }
 
 
-
 // SHOOT LASERS
 function shootLaser () {
 	// Create a laser
@@ -176,18 +255,18 @@ function shootLaser () {
 			dist: 0,
 			explodeTime: 0
 		});
+		laserSound.play();
 	}
 	// Prevent further shooting
 	ship.canShoot = false;
 }
 
 
-
 // MAKE THE SHIP EXPLODE
 function explodeShip () {
 	ship.explodeTime = Math.ceil(shipExplodeDuration * FPS);
+	explosionSound.play();
 }
-
 
 
 // DRAW THE EXPLOSITION
@@ -245,11 +324,13 @@ function drawExplosion (ex, ey, spikes, r) {
 }
 
 
-
 // MAKE THE GAME WORKS
 function update () {
 	let blinkOn = ship.blinkNumber % 2 === 0;
 	let exploding = ship.explodeTime > 0;
+	
+	//MUSIC
+	music.tick();
 	
 	// BACKGROUND
 	context.fillStyle = "rgba(44,44,44,1.00)";
@@ -292,6 +373,7 @@ function update () {
 	if (ship.thrusting && !ship.dead) {
 		ship.thrust.x += shipThrust * Math.cos(ship.a) / FPS;
 		ship.thrust.y -= shipThrust * Math.sin(ship.a) / FPS;
+		thrustSound.play();
 		
 		// Draw the thruster
 		if (!exploding && blinkOn) {
@@ -322,6 +404,7 @@ function update () {
 		// Apply space friction when no thrusting
 		ship.thrust.x -= friction * ship.thrust.x / FPS;
 		ship.thrust.y -= friction * ship.thrust.y / FPS;
+		thrustSound.stop()
 	}
 	
 	// DRAW THE SHIP
@@ -362,17 +445,22 @@ function update () {
 	// DRAW THE GAME TEXT
 	if (textAlpha >= 0) {
 		context.fillStyle = "rgba(255, 255, 255, " + textAlpha + ")";
-		context.font = "small-caps " + textSize + "px helvetica";
+		context.font = "small-caps " + (textSize + 20) + "px VT323";
 		context.textAlign   = "center";
-		context.fillText(text, canvas.width / 2, canvas.height * 0.75);
+		context.fillText(text, canvas.width / 2, canvas.height * 0.7);
 		textAlpha -= (1.0 / textFadeTime / FPS);
 	} else if (ship.dead) {
-		confirm("Play again?");
-		newGame();
+		context.fillStyle = "rgba(215,215,215,1.00)";
+		context.font = "small-caps " + (textSize - 5) + "px VT323";
+		context.textAlign   = "center";
+		context.textBaseline = "middle";
+		context.fillText("PRESS ANY KEY TO PLAY AGAIN", canvas.width / 2, canvas.height * 0.5);
+		document.addEventListener("keydown", newGame);
+		
 	}
 	
 	
-	// DRAW THE LIVES
+	// DRAW THE LIVES 
 	let lifeColors;
 	for (let i = 0; i < lives; i++) {
 		lifeColors = exploding && i === lives - 1 ? "red" : "#fff";
@@ -382,7 +470,7 @@ function update () {
 	
 	// DRAW THE SCORE
 	context.fillStyle = "#C9C9C9";
-	context.font = textSize + "px helvetica";
+	context.font = (textSize + 5) + "px VT323";
 	context.textAlign = "right";
 	context.textBaseline = "middle";
 	context.fillText(score, canvas.width - shipSize / 2, shipSize);
@@ -390,7 +478,7 @@ function update () {
 	
 	// DRAW THE HIGH SCORE
 	context.fillStyle = "#C9C9C9";
-	context.font = (textSize * 0.65) + "px helvetica";
+	context.font = (textSize * 0.9) + "px VT323";
 	context.textAlign = "center";
 	context.textBaseline = "middle";
 	context.fillText("BEST SCORE: " + highScore, canvas.width / 2, shipSize);
@@ -529,13 +617,14 @@ function update () {
 }
 
 
-
 // START A NEW GAME
 function newGame () {
 	level = 0;
 	score = 0;
 	lives = gameLives;
 	ship = newShip();
+	
+	document.removeEventListener("keydown", newGame);
 	
 	//High score from local storage
 	let scoreStr = localStorage.getItem(saveScore);
@@ -549,7 +638,6 @@ function newGame () {
 }
 
 
-
 // NEW LEVEL
 function newLevel () {
 	text = "Level " + (level + 1);
@@ -558,14 +646,13 @@ function newLevel () {
 }
 
 
-
 // GAME OVER
 function gameOver () {
 	ship.dead = true;
 	text = "Game Over";
 	textAlpha = 1.0;
+	musicOn = false;
 }
-
 
 
 // MOVE THE SHIP AND SHOOT THE LASERS ON KEYDOWN
@@ -618,7 +705,30 @@ function keyUp (e) {
 }
 
 
+// SWITCH ON/OFF THE SOUND EFFECTS
+function soundToggle () {
+	if(soundOn === false) {
+		soundOn = true;
+		document.querySelector("#sound").innerHTML = '<i class="fas fa-volume-up" aria-hidden="true" aria-label="sound on"></i>'
+	} else {
+		soundOn = false;
+		document.querySelector("#sound").innerHTML = '<i class="fas fa-volume-mute" aria-hidden="true" aria-label="sound off"></i>'
+	}
+}
+
+
+// SWITCH ON/OFF THE MUSIC
+function musicToggle () {
+	if(musicOn === false) {
+		musicOn = true;
+		document.querySelector("#music").classList.remove("mute");
+	} else {
+		musicOn = false;
+		document.querySelector("#music").classList.add("mute");
+	}
+}
 
 document.addEventListener("keydown", keyDown);
 document.addEventListener("keyup", keyUp);
-
+document.querySelector("#sound").addEventListener("click", soundToggle);
+document.querySelector("#music").addEventListener("click", musicToggle);
