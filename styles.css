@@ -7,23 +7,112 @@
 body{
 	height: 100vh;
 	display: flex;
-	justify-content: center;
+	flex-direction: column;
+	justify-content: space-around;
 	align-items: center;
 	background-color: rgba(17,17,17,1.00);
 }
 
-p{
-	margin-top: 50px;
-	margin-bottom: -70px;
-	color: #C6C6C6;
-	font-family: Helvetica, sans-serif;
-	text-align: center;
+main:focus{
+	outline-width: 0;
 }
 
 canvas{
 	width: 70vw;
 	height: 70vh;
+	margin-top: 40px;
 	border: 1.5px solid rgba(110,110,110,1.00);
 	border-radius: 20px;
-	box-shadow: 0 0 10px 10px rgba(37,37,37,1.00);;
+	box-shadow: 0 0 25px 20px rgba(49,49,49,1.00);
+}
+
+#instructions{
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-wrap: wrap;
+}
+
+.commands{
+	height: 90px;
+	margin: 0 5px;
+	padding: 34px 30px;
+	color: rgba(191,191,191,1.00);
+	font-family: "VT323", sans-serif;
+	font-size: 22px;
+	letter-spacing: 0.5px;
+	text-align: center;
+	text-transform: uppercase;
+	border: 1px solid rgba(166,166,166,1.00);
+	border-radius: 5px;
+}
+
+kbd{
+	margin-right: 10px;
+	padding: 5px 15px;
+	color: #0E0E0E;
+	font-family: "Helvetica", sans-serif;
+	font-size: 20px;
+	background-color: rgba(223,223,223,1.00);
+	border: 1px solid rgba(115,115,115,1.00);
+	border-radius: 3px;
+	box-shadow: 0 0 5px 2px rgba(159,159,159,1.00) inset;
+}
+
+.volume{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: rgba(191,191,191,1.00);
+	font-size: 40px;
+}
+
+.fa-volume-mute, .fa-volume-up, .fa-music{
+	padding: 0 15px;
+	cursor: pointer;
+}
+
+.fa-music.mute::after{
+	content: "";
+	background-color: rgba(191,191,191,1.00);
+	height: 55px;
+	width: 5px;
+	position: absolute;
+	border-radius: 10px;
+	transform: rotate(-55deg) translate(-95%, -35%);
+}
+
+#alert{
+	display: none;
+}
+
+
+
+/* RESPONSIVE */
+@media screen and (max-width: 1025px){
+	canvas{
+		height: 80vh;
+	}
+	#instructions{
+		display: none;
+	}
+	.volume{
+		display: none;
+	}
+	#alert{
+		width: 100vw;
+		height: 220px;
+		padding: 0 25px;
+		position: absolute;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		color: #fff;
+		font-family: "VT323", sans-serif;
+		font-size: 25px;
+		text-align: center;
+		text-transform: uppercase;
+		background-color: rgba(20,20,20,1.00);
+	}
 }
